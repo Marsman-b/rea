@@ -1,0 +1,43 @@
+name: Sync Fork from Upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+  # 每周日 北京时间 09:00（UTC 01:00）
+  - cron: '0 1 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream
+        run: |
+          #                       此处更换源仓库地址
+          git remote add upstream https://github.com/morluto/rea.git
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream
+
+      - name: Sync main branch
+        run: |
+          git checkout main
+          git merge upstream/main --ff-only
+
+      - name: Push changes
+        run: |
+          git push origin main
